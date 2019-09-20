@@ -1,5 +1,4 @@
 import boto3
-import re
 import json
 
 
@@ -30,13 +29,16 @@ for ldap in ldapdirs:
 			}
 		}
 		json_output = json.dumps(ldap_dict)
-		ssmclient.create_document(
-			Name = "awsconfig_Domain_"+ldapid+"_"+ldapname+"",
-			Content = json_output,
-			DocumentFormat = 'JSON',
-			TargetType = '/AWS::EC2::Instance'
+		try:
+			ssmclient.create_document(
+				Name = "awsconfig_Domain_"+ldapid+"_"+ldapname+"",
+				Content = json_output,
+				DocumentFormat = 'JSON',
+				argetType = '/AWS::EC2::Instance'
 
-			)
+				)
+		except:
+			print("awsconfig_Domain_"+ldapid+"_"+ldapname+" already exists")
 ssmpolicy = {
 		"Version": "2012-10-17",
 		"Statement": [
@@ -56,7 +58,7 @@ ssmpolicy = {
 					]
 }
 
-response = iam.create_policy(
+response = iamclient.create_policy(
 	PolicyName = 'SSMADJoiner',
 	PolicyDocument = json.dumps(ssmpolicy)
 	)
